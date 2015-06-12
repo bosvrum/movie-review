@@ -3,7 +3,7 @@ class MoviesController < ApplicationController
   before_action :require_admin, except: [:index, :show]
 
   def index
-    @movies = Movie.all
+    @movies = Movie.released
   end
   
   def show
