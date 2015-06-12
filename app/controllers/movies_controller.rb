@@ -1,13 +1,13 @@
 class MoviesController < ApplicationController
   before_action :require_signin, except: [:index, :show]
   before_action :require_admin, except: [:index, :show]
+  before_action :set_movie, only: [:show, :edit, :update, :destroy]
 
   def index
    @movies = Movie.send(movies_scope)
   end
   
   def show
-    @movie = Movie.find(params[:id])
     @review = Review.new
     @review.movie = @movie
     @fans = @movie.fans
@@ -19,11 +19,9 @@ class MoviesController < ApplicationController
   end
 
   def edit
-    @movie = Movie.find(params[:id])
   end
 
   def update
-    @movie = Movie.find(params[:id])
     if @movie.update(movie_params)
       redirect_to @movie, notice: "Movie successfully updated"
     else
@@ -45,7 +43,6 @@ class MoviesController < ApplicationController
   end
 
   def destroy
-    @movie = Movie.find(params[:id])
     if @movie.destroy
       redirect_to root_url, danger: "I'm sorry for that!"
     else
@@ -57,6 +54,10 @@ class MoviesController < ApplicationController
 
   private
 
+
+  def set_movie
+    @movie = Movie.find_by!(slug: params[:id])
+  end
   def movies_scope
     if params[:scope].in? %w(hits flops upcoming recent)
       params[:scope]
@@ -66,6 +67,6 @@ class MoviesController < ApplicationController
   end
 
   def movie_params
-    params.require(:movie).permit(:title, :description, :rating, :released_on, :total_gross, :cast, :director, :duration, :image_file_name, genre_ids: [])
+    params.require(:movie).permit(:title, :slug, :description, :rating, :released_on, :total_gross, :cast, :director, :duration, :image_file_name, genre_ids: [])
   end
 end

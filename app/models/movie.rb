@@ -1,6 +1,9 @@
 class Movie < ActiveRecord::Base
+  before_validation :generate_slug 
   
-  validates :title, :released_on, :duration, presence: true
+  validates :released_on, :duration, presence: true
+  validates :title, presence: true, uniqueness: true
+  validates :slug, uniqueness: true
   validates :description, length: { minimum: 25 }
   validates :total_gross, numericality: { greater_than_or_equal_to: 0 }
   validates :image_file_name, allow_blank: true, format: {
@@ -9,6 +12,7 @@ class Movie < ActiveRecord::Base
   }
   RATINGS = %w(G PG PG-13 R NC-17)
   validates :rating, inclusion: { in: RATINGS }
+
 
   
 
@@ -20,7 +24,7 @@ class Movie < ActiveRecord::Base
   has_many :genres, through: :characterizations
 
   scope :released, -> { where("released_on <= ?", Time.now).order("released_on DESC") }
-  scope :flops, -> { released.where('total_gross < 10000000').order('total_gross asc') }
+  scope :flops, -> { released.where('total_gross < 5000000').order('total_gross asc') }
   scope :hits, -> { released.where('total_gross >= 300000000').order('total_gross desc') }
   scope :upcoming, -> {  where("released_on > ?", Time.now).order(released_on: :asc) }
   scope :rated, ->(rating) { released.where(rating: rating) }
@@ -28,6 +32,15 @@ class Movie < ActiveRecord::Base
   scope :grossed_less_than, ->(amount) { released.where('total_gross < ?', amount) }
   scope :grossed_greater_than, ->(amount) { released.where('total_gross > ?', amount) }
 
+  
+  def to_param
+    slug
+  end
+
+  def generate_slug
+    self.slug ||= title.parameterize if title
+  end
+  
   def flop?
     total_gross.blank? || total_gross < 50000000 
   end
