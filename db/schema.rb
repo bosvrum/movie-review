@@ -11,10 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150611115138) do
+ActiveRecord::Schema.define(version: 20150612112704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "characterizations", force: :cascade do |t|
+    t.integer  "movie_id"
+    t.integer  "genre_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "characterizations", ["genre_id"], name: "index_characterizations_on_genre_id", using: :btree
+  add_index "characterizations", ["movie_id"], name: "index_characterizations_on_movie_id", using: :btree
 
   create_table "favorites", force: :cascade do |t|
     t.integer  "movie_id"
@@ -25,6 +35,12 @@ ActiveRecord::Schema.define(version: 20150611115138) do
 
   add_index "favorites", ["movie_id"], name: "index_favorites_on_movie_id", using: :btree
   add_index "favorites", ["user_id"], name: "index_favorites_on_user_id", using: :btree
+
+  create_table "genres", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "movies", force: :cascade do |t|
     t.string   "title"
@@ -61,6 +77,8 @@ ActiveRecord::Schema.define(version: 20150611115138) do
     t.boolean  "admin",           default: false
   end
 
+  add_foreign_key "characterizations", "genres"
+  add_foreign_key "characterizations", "movies"
   add_foreign_key "favorites", "movies"
   add_foreign_key "favorites", "users"
 end
