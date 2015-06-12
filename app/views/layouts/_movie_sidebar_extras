@@ -1,0 +1,20 @@
+<% content_for (:side) do %>
+  <% if @fans.any? %>
+    <h3>Fans</h3>
+    <ul>
+      <% @fans.each do |user| %>
+        <li>
+          <%= profile_image_for(user, size: 35) %>
+          <%= link_to user.name, user  %>
+        </li>
+      <% end %>  
+    </ul>
+  <% end %>
+  
+  <h3>Genres</h3>
+    <ul>
+      <% @genres.each do |genre| %>
+        <li><%= link_to genre.name, genre  %></li>
+      <% end %>
+    </ul>
+<% end %> 
