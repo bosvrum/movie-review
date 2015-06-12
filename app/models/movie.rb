@@ -25,7 +25,6 @@ class Movie < ActiveRecord::Base
   scope :released, -> { where("released_on <= ?", Time.now).order("released_on DESC") }
   scope :flops, -> { released.where('total_gross < 50000000').order('total_gross asc') }
   scope :hits, -> { released.where('total_gross >= 300000000').order('total_gross desc') }
-  # scope :upcoming, -> { where("released_on > ?", Time.now).order("released_on asc") }
   scope :rated, ->(rating) { released.where(rating: rating) }
   scope :recent, ->(max=5) { released.limit(max) }
   scope :grossed_less_than, ->(amount) { released.where('total_gross < ?', amount) }
