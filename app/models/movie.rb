@@ -1,5 +1,4 @@
 class Movie < ActiveRecord::Base
-  before_validation :generate_slug 
   
   validates :released_on, :duration, presence: true
   validates :title, presence: true, uniqueness: true
@@ -16,7 +15,7 @@ class Movie < ActiveRecord::Base
 
   
 
-  has_many :reviews, -> { order(created_at: :desc) }, dependent: :destroy
+  has_many :reviews, dependent: :destroy
   has_many :critics, through: :reviews, source: :user
   has_many :favorites, dependent: :destroy
   has_many :fans, through: :favorites, source: :user
@@ -24,15 +23,17 @@ class Movie < ActiveRecord::Base
   has_many :genres, through: :characterizations
 
   scope :released, -> { where("released_on <= ?", Time.now).order("released_on DESC") }
-  scope :flops, -> { released.where('total_gross < 5000000').order('total_gross asc') }
+  scope :flops, -> { released.where('total_gross < 50000000').order('total_gross asc') }
   scope :hits, -> { released.where('total_gross >= 300000000').order('total_gross desc') }
-  scope :upcoming, -> {  where("released_on > ?", Time.now).order(released_on: :asc) }
+  # scope :upcoming, -> { where("released_on > ?", Time.now).order("released_on asc") }
   scope :rated, ->(rating) { released.where(rating: rating) }
   scope :recent, ->(max=5) { released.limit(max) }
   scope :grossed_less_than, ->(amount) { released.where('total_gross < ?', amount) }
   scope :grossed_greater_than, ->(amount) { released.where('total_gross > ?', amount) }
 
-  
+  before_validation :generate_slug 
+
+
   def to_param
     slug
   end
